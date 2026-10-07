@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>暗記アプリ</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">暗記用</p>
+          <h1 id="appTitle">暗記アプリ</h1>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel upload-panel">
+          <div class="panel-header">
+            <h2>JSONファイルを選択して保存</h2>
+          </div>
+
+          <div class="upload-actions">
+            <label class="file-label">
+              <input id="jsonFileInput" type="file" accept=".json,application/json" />
+              <span>JSONファイルを選択</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel quiz-panel">
+          <div class="panel-header">
+            <h2>問題</h2>
+          </div>
+          <div id="topicList" class="topic-list"></div>
+          <div class="action-row compact-row">
+            <button id="shuffleQuestionsBtn" class="primary-btn" type="button">問題を開始</button>
+          </div>
+          <div id="quizState" class="quiz-state"></div>
+          <div id="quizCard" class="quiz-card hidden"></div>
+          <div id="resultSummary" class="result-summary hidden"></div>
+        </section>
+      </main>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
