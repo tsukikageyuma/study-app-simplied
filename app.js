@@ -184,6 +184,30 @@ function startQuiz() {
   renderCurrentQuestion();
 }
 
+function normalizeAnswerText(value) {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s\u3000]/g, '')
+    .replace(/[。、，,!？!?。]/g, '');
+}
+
+function getQuestionAnswerText(question) {
+  if (typeof question.answer === 'string' && question.answer.trim()) {
+    return question.answer;
+  }
+
+  if (Array.isArray(question.answers) && question.answers.length > 0) {
+    return String(question.answers[0]);
+  }
+
+  if (Array.isArray(question.options) && Number.isInteger(question.answerIndex)) {
+    return String(question.options[question.answerIndex] ?? '');
+  }
+
+  return '';
+}
+
 function renderCurrentQuestion() {
   const currentQuestion = state.shuffledQuestions[state.currentIndex];
   if (!currentQuestion) {
@@ -192,34 +216,55 @@ function renderCurrentQuestion() {
   }
 
   const questionNumber = state.currentIndex + 1;
-  const selectedAnswer = state.answered[state.currentIndex];
+  const currentAnswer = typeof state.answered[state.currentIndex] === 'string' ? state.answered[state.currentIndex] : '';
+  const hasOptions = Array.isArray(currentQuestion.options) && currentQuestion.options.length > 0 && Number.isInteger(currentQuestion.answerIndex);
 
   quizCardEl.classList.remove('hidden');
   resultSummaryEl.classList.add('hidden');
 
-  const optionsHtml = currentQuestion.options
-    .map((option, index) => {
-      const isSelected = selectedAnswer === index;
-      const isCorrect = index === currentQuestion.answerIndex;
+  if (hasOptions) {
+    const optionsHtml = currentQuestion.options
+      .map((option, index) => {
+        const isSelected = Number(currentAnswer) === index;
+        const isCorrect = index === currentQuestion.answerIndex;
 
-      let className = 'choice-item';
-      if (isSelected) className += ' selected';
-      if (selectedAnswer !== undefined && isCorrect) className += ' correct';
-      if (selectedAnswer !== undefined && isSelected && !isCorrect) className += ' wrong';
+        let className = 'choice-item';
+        if (isSelected) className += ' selected';
+        if (currentAnswer !== '' && isCorrect) className += ' correct';
+        if (currentAnswer !== '' && isSelected && !isCorrect) className += ' wrong';
 
-      return `
-        <label class="${className}">
-          <input type="radio" name="answer" value="${index}" ${isSelected ? 'checked' : ''} />
-          <span>${option}</span>
-        </label>
-      `;
-    })
-    .join('');
+        return `
+          <label class="${className}">
+            <input type="radio" name="answer" value="${index}" ${isSelected ? 'checked' : ''} />
+            <span>${option}</span>
+          </label>
+        `;
+      })
+      .join('');
+
+    quizCardEl.innerHTML = `
+      <div class="question-box">
+        <h3>Q${questionNumber}. ${currentQuestion.question}</h3>
+        <div class="choice-list">${optionsHtml}</div>
+        <button class="primary-btn answer-btn" type="button" data-action="check">答えを確認</button>
+      </div>
+    `;
+    return;
+  }
 
   quizCardEl.innerHTML = `
     <div class="question-box">
       <h3>Q${questionNumber}. ${currentQuestion.question}</h3>
-      <div class="choice-list">${optionsHtml}</div>
+      <div class="short-answer-box">
+        <input
+          type="text"
+          class="short-answer-input"
+          name="shortAnswer"
+          value="${currentAnswer.replace(/"/g, '&quot;')}"
+          placeholder="答えを入力してください"
+          autocomplete="off"
+        />
+      </div>
       <button class="primary-btn answer-btn" type="button" data-action="check">答えを確認</button>
     </div>
   `;
@@ -246,50 +291,78 @@ function checkAnswer() {
   const currentQuestion = state.shuffledQuestions[state.currentIndex];
   if (!currentQuestion) return;
 
-  const selectedValue = document.querySelector('input[name="answer"]:checked');
-  if (!selectedValue) {
-    alert('答えを選択してください。');
+  const legacyRadio = document.querySelector('input[name="answer"]:checked');
+  const shortAnswerInput = document.querySelector('input[name="shortAnswer"]');
+
+  let userInput = '';
+  let isCorrect = false;
+
+  if (legacyRadio) {
+    userInput = Number(legacyRadio.value);
+    isCorrect = userInput === currentQuestion.answerIndex;
+    state.answered[state.currentIndex] = userInput;
+  } else if (shortAnswerInput) {
+    userInput = shortAnswerInput.value;
+    const correctAnswerText = normalizeAnswerText(getQuestionAnswerText(currentQuestion));
+    const enteredText = normalizeAnswerText(userInput);
+    isCorrect = enteredText === correctAnswerText;
+    state.answered[state.currentIndex] = String(userInput);
+  } else {
+    alert('答えを入力してください。');
     return;
   }
-
-  const userChoice = Number(selectedValue.value);
-  const isCorrect = userChoice === currentQuestion.answerIndex;
-  state.answered[state.currentIndex] = userChoice;
 
   if (isCorrect) {
     state.totalCorrect += 1;
   }
 
   renderQuizState();
-  showQuestionResult(currentQuestion, userChoice, isCorrect);
+  showQuestionResult(currentQuestion, userInput, isCorrect);
 }
 
-function showQuestionResult(currentQuestion, userChoice, isCorrect) {
-  const optionsHtml = currentQuestion.options
-    .map((option, index) => {
-      const isSelected = userChoice === index;
-      const isCorrectOption = index === currentQuestion.answerIndex;
-
-      let className = 'choice-item';
-      if (isCorrectOption) className += ' correct';
-      if (isSelected && !isCorrectOption) className += ' wrong';
-
-      return `
-        <label class="${className}">
-          <input type="radio" name="answer" value="${index}" ${isSelected ? 'checked' : ''} disabled />
-          <span>${option}</span>
-        </label>
-      `;
-    })
-    .join('');
-
+function showQuestionResult(currentQuestion, userInput, isCorrect) {
+  const correctAnswer = getQuestionAnswerText(currentQuestion);
   const statusClass = isCorrect ? 'correct' : 'wrong';
   const statusText = isCorrect ? '正解です！' : '不正解です';
+
+  if (Array.isArray(currentQuestion.options) && currentQuestion.options.length > 0 && Number.isInteger(currentQuestion.answerIndex)) {
+    const optionsHtml = currentQuestion.options
+      .map((option, index) => {
+        const isSelected = userInput === index;
+        const isCorrectOption = index === currentQuestion.answerIndex;
+
+        let className = 'choice-item';
+        if (isCorrectOption) className += ' correct';
+        if (isSelected && !isCorrectOption) className += ' wrong';
+
+        return `
+          <label class="${className}">
+            <input type="radio" name="answer" value="${index}" ${isSelected ? 'checked' : ''} disabled />
+            <span>${option}</span>
+          </label>
+        `;
+      })
+      .join('');
+
+    quizCardEl.innerHTML = `
+      <div class="question-box">
+        <h3>Q${state.currentIndex + 1}. ${currentQuestion.question}</h3>
+        <div class="choice-list">${optionsHtml}</div>
+        <div class="answer-status ${statusClass}">${statusText}</div>
+        <div class="explanation">解説: ${currentQuestion.explanation}</div>
+        <button class="next-btn" type="button" data-action="next">次の問題へ</button>
+      </div>
+    `;
+    return;
+  }
 
   quizCardEl.innerHTML = `
     <div class="question-box">
       <h3>Q${state.currentIndex + 1}. ${currentQuestion.question}</h3>
-      <div class="choice-list">${optionsHtml}</div>
+      <div class="short-answer-result">
+        <div class="result-row"><span>あなたの答え:</span> <strong>${String(userInput || '未入力')}</strong></div>
+        <div class="result-row"><span>正解:</span> <strong>${correctAnswer}</strong></div>
+      </div>
       <div class="answer-status ${statusClass}">${statusText}</div>
       <div class="explanation">解説: ${currentQuestion.explanation}</div>
       <button class="next-btn" type="button" data-action="next">次の問題へ</button>

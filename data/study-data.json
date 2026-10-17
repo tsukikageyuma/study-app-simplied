@@ -78,65 +78,57 @@
     {
       "id": 1,
       "moduleId": "english",
-      "question": "I ___ a student. に当てはまる語はどれ？",
-      "options": ["am", "is", "are", "be"],
-      "answerIndex": 0,
+      "question": "I ___ a student. に当てはまる語を答えなさい。",
+      "answer": "am",
       "explanation": "主語がIのときは be動詞は am を使います。"
     },
     {
       "id": 2,
       "moduleId": "english",
-      "question": "『私はサッカーが好きです。』を英語にするとどれ？",
-      "options": ["I like soccer.", "I am soccer.", "I have soccer.", "I play soccer."],
-      "answerIndex": 0,
+      "question": "『私はサッカーが好きです。』を英語で答えなさい。",
+      "answer": "I like soccer.",
       "explanation": "like は「好き」という意味で、I like soccer. が正しい表現です。"
     },
     {
       "id": 3,
       "moduleId": "science",
-      "question": "植物が育つのに必要なものとして適切でないものはどれ？",
-      "options": ["日光", "水", "空気", "コンクリート"],
-      "answerIndex": 3,
+      "question": "植物が育つのに必要でないものを答えなさい。",
+      "answer": "コンクリート",
       "explanation": "植物は日光・水・空気が必要ですが、コンクリートは必要ありません。"
     },
     {
       "id": 4,
       "moduleId": "science",
-      "question": "力の大きさが大きいとどうなるか？",
-      "options": ["動きにくくなる", "変わらない", "動きやすくなる", "止まる"],
-      "answerIndex": 2,
+      "question": "力が大きいとどうなるか。1語で答えなさい。",
+      "answer": "動きやすくなる",
       "explanation": "力が大きいほど、物体を動かしやすくなります。"
     },
     {
       "id": 5,
       "moduleId": "social",
-      "question": "日本の地方区分でないものはどれ？",
-      "options": ["関東地方", "東南アジア地方", "近畿地方", "九州地方"],
-      "answerIndex": 1,
+      "question": "日本の地方区分ではないものを答えなさい。",
+      "answer": "東南アジア地方",
       "explanation": "東南アジア地方は日本の地方区分ではありません。"
     },
     {
       "id": 6,
       "moduleId": "social",
-      "question": "地図を読むときに大切なものはどれ？",
-      "options": ["縮尺", "音量", "色の濃さ", "紙の厚さ"],
-      "answerIndex": 0,
+      "question": "地図を読むときに大切なものを答えなさい。",
+      "answer": "縮尺",
       "explanation": "縮尺は地図上の距離と実際の距離の関係を表す大切な情報です。"
     },
     {
       "id": 7,
       "moduleId": "music",
-      "question": "音の高さが違うとき、どちらが高い音か？",
-      "options": ["低い音", "高い音", "同じ音", "聞こえない"],
-      "answerIndex": 1,
+      "question": "音の高さが違うとき、高い音のほうを答えなさい。",
+      "answer": "高い音",
       "explanation": "音には高い音と低い音があり、振動の速さで違いが出ます。"
     },
     {
       "id": 8,
       "moduleId": "music",
-      "question": "音楽で速さや強弱を変えることを何というか？",
-      "options": ["表現", "計算", "記憶", "照明"],
-      "answerIndex": 0,
+      "question": "音楽で速さや強弱を変えることを何というか。",
+      "answer": "表現",
       "explanation": "音楽では強弱や速さの変化を表現として使います。"
     }
   ]

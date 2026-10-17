@@ -258,6 +258,43 @@ h1 {
   accent-color: var(--primary);
 }
 
+.short-answer-box {
+  margin-bottom: 16px;
+}
+
+.short-answer-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 12px;
+  font-size: 1rem;
+  background: #fff;
+  color: var(--text);
+}
+
+.short-answer-result {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: var(--muted);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.95rem;
+}
+
+.result-row strong {
+  color: var(--text);
+}
+
 .choice-item.selected {
   border-color: var(--primary);
   background: rgba(61, 123, 255, 0.08);
