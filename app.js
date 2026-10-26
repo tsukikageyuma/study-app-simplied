@@ -16,6 +16,14 @@ const quizCardEl = document.getElementById('quizCard');
 const resultSummaryEl = document.getElementById('resultSummary');
 const appTitleEl = document.getElementById('appTitle');
 const jsonFileInputEl = document.getElementById('jsonFileInput');
+const questionEditorEl = document.getElementById('questionEditor');
+const toggleEditorBtn = document.getElementById('toggleEditorBtn');
+
+function escapeHtml(value) {
+  const element = document.createElement('div');
+  element.textContent = String(value ?? '');
+  return element.innerHTML;
+}
 
 function loadDataFromStorage() {
   try {
@@ -381,8 +389,80 @@ function nextQuestion() {
   renderCurrentQuestion();
 }
 
+function renderQuestionEditor() {
+  if (!state.data) {
+    questionEditorEl.innerHTML = '<div class="empty-state">先にJSONファイルを読み込んでください。</div>';
+    return;
+  }
+
+  const questions = getQuestionsForSelectedModule();
+  if (questions.length === 0) {
+    questionEditorEl.innerHTML = '<div class="empty-state">この科目には編集できる問題がありません。</div>';
+    return;
+  }
+
+  const questionsHtml = questions.map((question, index) => {
+    const answer = getQuestionAnswerText(question);
+    return `
+      <form class="question-editor-item" data-question-id="${escapeHtml(question.id ?? '')}">
+        <h3>問題 ${index + 1}</h3>
+        <label>
+          <span>問題文</span>
+          <textarea name="question" rows="3">${escapeHtml(question.question)}</textarea>
+        </label>
+        <label>
+          <span>答え</span>
+          <input type="text" name="answer" value="${escapeHtml(answer)}" />
+        </label>
+        <label>
+          <span>解説</span>
+          <textarea name="explanation" rows="3">${escapeHtml(question.explanation)}</textarea>
+        </label>
+        <button class="primary-btn" type="submit">この問題を保存</button>
+      </form>
+    `;
+  }).join('');
+
+  questionEditorEl.innerHTML = questionsHtml;
+}
+
+function saveEditedQuestion(form) {
+  const questionIdValue = form.dataset.questionId;
+  const questionIndex = state.data.questions.findIndex((question) => String(question.id ?? '') === String(questionIdValue));
+  if (questionIndex === -1) return;
+
+  const formData = new FormData(form);
+  const question = state.data.questions[questionIndex];
+  question.question = String(formData.get('question') ?? '').trim();
+  question.answer = String(formData.get('answer') ?? '').trim();
+  question.explanation = String(formData.get('explanation') ?? '').trim();
+
+  if (Array.isArray(question.options) && Number.isInteger(question.answerIndex)) {
+    question.options[question.answerIndex] = question.answer;
+  }
+
+  saveDataToStorage(state.data);
+  renderQuizState();
+  alert('問題を保存しました。');
+}
+
+function toggleQuestionEditor() {
+  const isHidden = questionEditorEl.classList.toggle('hidden');
+  toggleEditorBtn.textContent = isHidden ? '編集を開く' : '編集を閉じる';
+  if (!isHidden) {
+    renderQuestionEditor();
+  }
+}
+
 document.getElementById('shuffleQuestionsBtn').addEventListener('click', startQuiz);
 jsonFileInputEl.addEventListener('change', handleJsonFile);
+toggleEditorBtn.addEventListener('click', toggleQuestionEditor);
+
+questionEditorEl.addEventListener('submit', (event) => {
+  if (!event.target.matches('.question-editor-item')) return;
+  event.preventDefault();
+  saveEditedQuestion(event.target);
+});
 
 quizCardEl.addEventListener('click', (event) => {
   const actionTarget = event.target.closest('[data-action]');

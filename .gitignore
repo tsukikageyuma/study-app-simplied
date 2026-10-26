@@ -1,0 +1,5 @@
+# Problem JSON files are stored locally on each device.
+*.json
+
+# Editor environment files.
+.vscode/
