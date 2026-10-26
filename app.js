@@ -391,7 +391,7 @@ function nextQuestion() {
 
 function renderQuestionEditor() {
   if (!state.data) {
-    questionEditorEl.innerHTML = '<div class="empty-state">先にJSONファイルを読み込んでください。</div>';
+    questionEditorEl.innerHTML = '<div class="empty-state">先に上の「JSONファイルを選択」から、端末内のJSONファイルを読み込んでください。</div>';
     return;
   }
 
